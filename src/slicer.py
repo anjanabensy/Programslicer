@@ -218,7 +218,7 @@ def print_Slice(indentarray,Identifiers_Output,endline,arg,Function_Output) :
                     outF.write(str(indentarray[i-1][2]))
                     outF.write("\n")
                 outF.close()
-            print('Output file saved under src/progfiles')
+            print('Output file saved under src/progfiles/',filename)
         
         elif(arg.count('t')>0):
             s = Final_Slice.copy()
