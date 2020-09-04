@@ -13,17 +13,17 @@ class Test(unittest.TestCase):
         program =file.read()
         file.close()
         res = lex.tokenize_program(program)
-        result = main.getfile(program,'8,sum',res)
+        result = main.getfile(program,'8,sum',res,filename)
         self.assertEqual(desired_slice,result,'While Test case failed')
     
     def test_case2(self):
-        desired_slice =  [3, 4, 6, 7, 9, 11, 14, 15]
+        desired_slice =  [4, 5, 6, 12, 13, 14, 15]
         filename = "progfiles\\ifelseprog.py"
         file = open(filename, "r")
         program =file.read()
         file.close()
         res = lex.tokenize_program(program)
-        result = main.getfile(program,'15,a',res)
+        result = main.getfile(program,'15,a',res,filename)
         self.assertEqual(desired_slice,result,'If else Test case failed')
         
     def test_case3(self):
@@ -33,7 +33,7 @@ class Test(unittest.TestCase):
         program =file.read()
         file.close()
         res = lex.tokenize_program(program)
-        result = main.getfile(program,'9,z',res)
+        result = main.getfile(program,'9,z',res,filename)
         self.assertEqual(desired_slice,result,' Function call Test case failed')
         
     def test_case4(self):
@@ -43,7 +43,7 @@ class Test(unittest.TestCase):
         program =file.read()
         file.close()
         res = lex.tokenize_program(program)
-        result = main.getfile(program,'9,sum',res)
+        result = main.getfile(program,'9,sum',res,filename)
         self.assertEqual(desired_slice,result,' User Input Test case failed')
         
     def test_case5(self):
@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         program =file.read()
         file.close()
         res = lex.tokenize_program(program)
-        result = main.getfile(program,'12,a',res)
+        result = main.getfile(program,'12,a',res,filename)
         self.assertEqual(desired_slice,result,' Nested If Test case failed')
         
     def test_case6(self):
@@ -63,7 +63,7 @@ class Test(unittest.TestCase):
         program =file.read()
         file.close()
         res = lex.tokenize_program(program)
-        result = main.getfile(program,'6,y',res)
+        result = main.getfile(program,'6,y',res,filename)
         self.assertEqual(desired_slice,result,'List Test case failed')
    
     

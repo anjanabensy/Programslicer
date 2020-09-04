@@ -64,12 +64,12 @@ def loadfile(file):
         c=0
         while(valid>0):
             c=c+1
-            Slice = input("\nEnter the slice criteria:")
+            Slice = input("\nEnter the slice criteria (p, V):")
             valid = validat_slice()  
     return [Slice,lexer_result]
 
 """ sends the program and slicing criterion to the slicer module to perform the slicing"""
-def getfile(program,Slice,lexer_result):
+def getfile(program,Slice,lexer_result,filepath):
         global endline
         global vars
         global line_opt
@@ -81,7 +81,7 @@ def getfile(program,Slice,lexer_result):
             #res = lex.tokenize_program(program)
             s.check_Indentation(lexer_result[0])
             s.setfirstsliceno(x,lexer_result[0],lexer_result[1],lexer_result[2])
-            Finalvals = s.print_Slice(lexer_result[0],lexer_result[1],endline,line_opt,lexer_result[2])
+            Finalvals = s.print_Slice(lexer_result[0],lexer_result[1],endline,line_opt,lexer_result[2],filepath,x)
             s.clearvars()
             line_opt.clear()
         return Finalvals
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         f = open(filepath, 'r')
         program = f.read()
         res = loadfile(program)
-        getfile(program,res[0],res[1])
+        getfile(program,res[0],res[1],filepath)
     except Exception as e:
         print(traceback.format_exc())
         

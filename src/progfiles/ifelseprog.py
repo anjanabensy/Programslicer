@@ -1,5 +1,6 @@
-def myfunc(z):
-    print(z)
+def myfunc(m):
+    v = m + 2
+    return v
 def main():
     a = 3
     b = 4
@@ -7,9 +8,8 @@ def main():
     y = 9
     c = a + b
     z = x + y
-    myfunc(z)
-    if(x > z):
-        z = z - 2
-        myfunc(z)
+    z = myfunc(z)
+    if(a > b):
+        a = a - 2
     else:
         a += 2

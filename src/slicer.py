@@ -79,24 +79,32 @@ def setfirstsliceno(sv,indentarray,Identifiers_Output,Function_Output):
         val1 = max(myvars1)
         Final_Slice.append(val1) 
         Slice.append(val1)
+        c = c + 1
     # check if the defined and used var line > max of defined line    
     if(myvars2):
         for k in myvars2:
             if(k>val1):
                 Final_Slice.append(k) 
                 Slice.append(k)
-        
-    #print('The first slice is ',Final_Slice) 
-    funcalls(indentarray, Identifiers_Output, endval,Function_Output)
+                c = c + 1
+                
+    Final_Slice = list(dict.fromkeys(Final_Slice)) 
+    Slice = list(dict.fromkeys(Slice))       
+    #print('The first slice is ',Final_Slice)
+    if(c > 0): 
+        funcalls(indentarray, Identifiers_Output, endval,Function_Output,c)
      
-def funcalls(indentarray,Identifiers_Output,endline,Function_Output):
+def funcalls(indentarray,Identifiers_Output,endline,Function_Output,counter):
     global Final_Slice
-    c = get_Variables(Identifiers_Output,endline)
-    if(c>0):
-        v = get_FinalSlice(Identifiers_Output, endline,indentarray,Function_Output)
-        if(v>0):
-            funcalls(indentarray, Identifiers_Output, endline,Function_Output)
-            
+    c = 0
+    if(counter > 0):
+        c = get_Variables(Identifiers_Output,endline)
+        if(c>0):
+            v = get_FinalSlice(Identifiers_Output, endline,indentarray,Function_Output)
+            if(v>0):
+                funcalls(indentarray, Identifiers_Output, endline,Function_Output,v)  
+    return c           
+                             
 #gets the used variables present in the lines to be included in the slice
 def get_Variables(Identifiers_Output,endline):
         global temp
@@ -105,14 +113,14 @@ def get_Variables(Identifiers_Output,endline):
         temp.clear()
         global Final_Slice
         c=0
-
         for i in range(len(Slice)-1, -1, -1):
-            for k in range(len(Identifiers_Output)-1, -1, -1):  
-                if(Identifiers_Output[k][0]==Slice[i] and Identifiers_Output[k][2]in['used','fu'] and Identifiers_Output[k][2] not in myvals):
+            for k in range(len(Identifiers_Output)-1, -1, -1):    
+                if(Identifiers_Output[k][0]==Slice[i] and Identifiers_Output[k][2]in['used','fu','du'] and Identifiers_Output[k][2] not in myvals):
                         temp.append([Identifiers_Output[k][1],Slice[i],Identifiers_Output[k][2]]) 
-                        myvals.append([Identifiers_Output[k][1],Slice[i],Identifiers_Output[k][2]]) 
+                        myvals.append(Identifiers_Output[k][1]) 
                         c=c+1
     
+
         #print("temp values :",temp)
         #print("Final ",Final_Slice) 
         return c
@@ -134,28 +142,30 @@ def get_FinalSlice(Identifiers_Output,endline,indentarray,Function_Output):
             myval1 = 0
             myval2 = 0
             
-            for k in range(len(Identifiers_Output)-1, -1, -1):  
-                if(temp[i][2]!='fu' and Identifiers_Output[k][1]==temp[i][0] and Identifiers_Output[k][0]<=int(endline) and Identifiers_Output[k][0]<temp[i][1] and Identifiers_Output[k][0] not in Final_Slice):
-                    line = Identifiers_Output[k][0]
-                    if(Identifiers_Output[k][2] =='du'):
-                        myvars1.append(line)
-                        Slice.append(Identifiers_Output[k][0])
-                    elif(Identifiers_Output[k][2] =='defined'):
-                        myvars2.append(line)
+            if(temp[i][2]!='fu'):
+                for k in range(len(Identifiers_Output)-1, -1, -1):  
+                    if(Identifiers_Output[k][1]==temp[i][0] and Identifiers_Output[k][0]<=int(endline) and Identifiers_Output[k][0]<temp[i][1]):
+                        line = Identifiers_Output[k][0]
+                        if(Identifiers_Output[k][2] =='du'):
+                            myvars1.append(line)
+                        elif(Identifiers_Output[k][2] =='defined'):
+                            myvars2.append(line)
+                           
+                if(myvars2):
+                    myval2 = max(myvars2)
+                    if(myval2 not in Final_Slice):
+                        Final_Slice.append(myval2)
+                        Slice.append(myval2)
                         c=c+1
-            
-            if(myvars2):
-                myval2 = max(myvars2)
-                Final_Slice.append(myval2)
-                Slice.append(myval2)
                 
-            if(myvars1):
-                for j in myvars1:
-                    if(j > myval2):
-                        Final_Slice.append(j)
-                        Slice.append(j)
+                if(myvars1):
+                    for j in myvars1:
+                        if(j > myval2 and j not in Final_Slice):
+                            Final_Slice.append(j)
+                            Slice.append(j)
+                            c=c+1
         
-            if(temp[i][2]=='fu'):
+            elif(temp[i][2]=='fu'):
                 for k in range(len(Function_Output)-1, -1, -1): 
                     fname = Function_Output[k][1]
                     if(temp[i][0]==fname):
@@ -164,16 +174,15 @@ def get_FinalSlice(Identifiers_Output,endline,indentarray,Function_Output):
                         c=c+1
                         for a in range(len(indentarray)-1, -1, -1): 
                             lno = Function_Output[k][0]
-                            if(indentarray[a][2].count('return')>0 and indentarray[lno][1]==indentarray[a][1] and indentarray[a][0]<=endline):
-                                Final_Slice.append(indentarray[a][0])
-                                Slice.append(indentarray[a][0]) 
-                                c=c+1
-                            
+                            if(indentarray[a][2].count('return')>0):
+                                if(indentarray[lno][1]==indentarray[a][1] and int(indentarray[a][0])<=int(endline)):
+                                    Final_Slice.append(indentarray[a][0])
+                                    Slice.append(indentarray[a][0]) 
+                                    c=c+1
                     
             
         #print("Final slice ",Final_Slice) 
         #print("new slice ",Slice) 
-    #print("new values:",val)
         if(c>0):
             Final_Slice = list(dict.fromkeys(Final_Slice))  
         return c
@@ -183,6 +192,7 @@ def addparent(indentarray,Identifiers_Output,endline,Function_Output):
     global Final_Slice
     global st_tree
     global Slice
+    ctr = 0
    
     Slice = []
     
@@ -196,15 +206,15 @@ def addparent(indentarray,Identifiers_Output,endline,Function_Output):
             if(val!=0 and val not in Final_Slice):
                 Final_Slice.append(val)
                 Slice.append(val)
-                funcalls(indentarray, Identifiers_Output, endline,Function_Output)
-                addparent(indentarray,Identifiers_Output,endline,Function_Output)
+                ctr =funcalls(indentarray, Identifiers_Output, endline,Function_Output,1)
+                if(ctr>0):
+                    addparent(indentarray,Identifiers_Output,endline,Function_Output)
         Final_Slice.sort()
         
 #print the slice based on the command line option selected
-def print_Slice(indentarray,Identifiers_Output,endline,arg,Function_Output) :
-   
-    addparent(indentarray,Identifiers_Output,endline,Function_Output)  
-    print("Final Slice values are :", Final_Slice)
+def print_Slice(indentarray,Identifiers_Output,endline,arg,Function_Output,iprog,crit) :
+    addparent(indentarray,Identifiers_Output,endline,Function_Output)
+    #print('Control Dependency list ',st_tree)  
     if(arg):
         if(str(arg[0])=='l'):
             print("\n\n ******Final Slice******")  
@@ -218,7 +228,7 @@ def print_Slice(indentarray,Identifiers_Output,endline,arg,Function_Output) :
                     outF.write(str(indentarray[i-1][2]))
                     outF.write("\n")
                 outF.close()
-            print('Output file saved under src/progfiles')
+            print('Output file saved under src/progfiles/',filename)
         
         elif(arg.count('t')>0):
             s = Final_Slice.copy()
@@ -231,14 +241,18 @@ def print_Slice(indentarray,Identifiers_Output,endline,arg,Function_Output) :
                             typ = 'defined and used'
                         print('[',j[0],',\'',j[1],'\',\'',typ,'\']')
                     
-            print("\n\n ******Final Slice******")  
+            print("******Final Slice******")  
             for i in Final_Slice:
-                print(str(i),'.',str(indentarray[i-1][2]))       
-            
-        elif(arg[0]=='o'):
-            print("\n\n ******Final Slice******")  
+                print(str(i),'.',str(indentarray[i-1][2]))   
+        else:
+            print("******Final Slice******")  
             for i in Final_Slice:
-                print(str(indentarray[i-1][2]))
+                print(str(indentarray[i-1][2]))       
+    else:
+        print('******Final Slice',crit,'of',iprog,'******')  
+        for i in Final_Slice:
+            print(str(indentarray[i-1][2]))  
+               
     c = Final_Slice.copy()
     return c
 

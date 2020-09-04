@@ -138,19 +138,24 @@ def tokenize_program(program):
             #checks if it's a function definition
             elif(re.findall(RE_Identifiers, v ) and v==ctr[1]  and ctr[0]=='def' and re.findall(RE_Identifiers,ctr[0])):
                 Function_Output.append([c,v,'defined'])  
-            #categorizes the function arguments in function definition as defined
+            #categorizes the function arguments in function definition as function variables
             elif(re.findall(RE_Identifiers, v ) and ctr[0]=='def' and stack.count('(')>=1 and v!= ctr[1]):
-                Identifiers_Output.append([c,v,'defined'])
+                Identifiers_Output.append([c,v,'fvars'])
             #catogerizes the function call return variables 
             elif(re.findall(RE_Identifiers, v ) and (ctr.count('(')>0  and stack.count('(')==0)or (ctr.count('()')>0  and stack.count('()')==0)):
                     if(stack.count('=')>0 or ctr.count('=')==0):
                         Identifiers_Output.append([c,v,'fu'])
+                    elif(ctr.count(v)>1):
+                        Identifiers_Output.append([c,v,'du']) 
                     else:
-                        #if assigned to a var categorizes the var as defined
+                        #if function assigned to var categorize that var as defined
                         Identifiers_Output.append([c,v,'defined']) 
             #checks if variable is within a function call and categorize as used 
             elif(re.findall(RE_Identifiers, v ) and stack.count('(')>=1 and re.findall(RE_Identifiers,ctr[0])):
-                Identifiers_Output.append([c,v,'used']) 
+                if(ctr.count(v)>1):
+                    Identifiers_Output.append([c,v,'du']) 
+                else:
+                    Identifiers_Output.append([c,v,'used']) 
             #checks if variable is the defined variable of for loop statement
             elif(re.findall(RE_Identifiers, v ) and ctr.count('for')>0 and ctr[1]==v):
                 Identifiers_Output.append([c,v,'defined']) 
@@ -177,5 +182,7 @@ def tokenize_program(program):
     
     #print(Identifiers_Output)
     #print(Function_Output)
+   # print(Numerals_Output)
+   # print(Conditionals_Output)
     return [indentarray,Identifiers_Output,Function_Output]
    

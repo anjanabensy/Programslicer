@@ -1,3 +1,4 @@
-def main():
-    x = 1
-    z = getz(x)
+def main() :
+    i = 1
+    while(i <= 10):
+        i=i+1
